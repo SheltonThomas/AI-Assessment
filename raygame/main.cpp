@@ -10,18 +10,39 @@
 ********************************************************************************************/
 
 #include "raylib.h"
+#include "Maze.h"
+
+enum tileType {
+	grass,
+	bush,
+	water,
+	wall
+};
 
 int main()
 {
 	// Initialization
 	//--------------------------------------------------------------------------------------
-	int screenWidth = 800;
-	int screenHeight = 450;
+	int screenWidth = 1280;
+	int screenHeight = 720;
 
 	InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
-	SetTargetFPS(60);
+	SetTargetFPS(0);
 	//--------------------------------------------------------------------------------------
+	float mapSize = 25;
+
+	Maze<tileType> maze({ mapSize, mapSize }, {25, 25}, grass, GREEN);
+
+	for (float i = 0; i < mapSize; i++)
+	{
+		maze.createTile({ i, 0 }, wall, GRAY);
+		maze.createTile({ 0, i }, wall, GRAY);
+		maze.createTile({ i, mapSize - 1 }, wall, GRAY);
+		maze.createTile({ mapSize - 1, i }, wall, GRAY);
+		if(i != mapSize - 1) maze.createTile({ 1, i }, water, BLUE);
+		if (i != 10 && i != 11 && i != 12 && i != 13 && i != mapSize - 1) maze.createTile({ i, 10 }, water, BLUE);
+	}
 
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
@@ -35,9 +56,9 @@ int main()
 		//----------------------------------------------------------------------------------
 		BeginDrawing();
 
-		ClearBackground(RAYWHITE);
+		ClearBackground(BLACK);
 
-		DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+		maze.draw();
 
 		EndDrawing();
 		//----------------------------------------------------------------------------------
