@@ -11,6 +11,11 @@
 
 #include "raylib.h"
 #include "Maze.h"
+#include "Pathfinding.h"
+#include <vector>
+#include <iostream>
+
+using namespace pathfinding;
 
 enum tileType {
 	grass,
@@ -31,8 +36,10 @@ int main()
 	SetTargetFPS(0);
 	//--------------------------------------------------------------------------------------
 	float mapSize = 25;
+	float tileSize = 25;
 
-	Maze<tileType> maze({ mapSize, mapSize }, {25, 25}, grass, GREEN);
+	std::vector<Node*> nodeMap;
+	Maze<tileType> maze({ mapSize, mapSize }, { tileSize, tileSize }, grass, GREEN);
 
 	for (float i = 0; i < mapSize; i++)
 	{
@@ -40,8 +47,140 @@ int main()
 		maze.createTile({ 0, i }, wall, GRAY);
 		maze.createTile({ i, mapSize - 1 }, wall, GRAY);
 		maze.createTile({ mapSize - 1, i }, wall, GRAY);
-		if(i != mapSize - 1) maze.createTile({ 1, i }, water, BLUE);
+		if (i != mapSize - 1) maze.createTile({ 1, i }, water, BLUE);
 		if (i != 10 && i != 11 && i != 12 && i != 13 && i != mapSize - 1) maze.createTile({ i, 10 }, water, BLUE);
+	}
+
+	for (float i = 0; i < mapSize; i++)
+	{
+		for (float j = 0; j < mapSize; j++)
+		{
+			Node* tempNode = new Node({ i, j });
+
+			nodeMap.push_back(tempNode);
+		}
+	}
+
+	for (float i = 0; i < mapSize; i++)
+	{
+		for (float j = 0; j < mapSize; j++)
+		{
+			if (maze.getTileType({ j, i }) == wall) continue;
+			if (maze.getTileType({ j, i }) == water) continue;
+			if (maze.getTileType({ j, i }) == bush) continue;
+
+			float currentCoordinate = j * mapSize + i;
+			Node* currentNode = nodeMap.at(currentCoordinate);
+			tileType currentTile = maze.getTileType({ j, i });
+
+			if (i != mapSize - 1 && currentTile == grass)
+			{
+				tileType nextTile = maze.getTileType({ j, i + 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = j * mapSize + (i + 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+				
+				nextTile = maze.getTileType({ j + 1, i + 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j + 1) * mapSize + (i + 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+
+				nextTile = maze.getTileType({ j - 1, i + 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j - 1) * mapSize + (i + 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+			}
+
+			if (i != 0 && currentTile == grass)
+			{
+				tileType nextTile = maze.getTileType({ j, i - 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = j * mapSize + (i - 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+
+				nextTile = maze.getTileType({ j + 1, i - 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j + 1) * mapSize + (i - 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+
+				nextTile = maze.getTileType({ j - 1, i - 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j - 1) * mapSize + (i - 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+			}
+
+			if (j != mapSize - 1 && currentTile == grass)
+			{
+				tileType nextTile = maze.getTileType({ j + 1, i });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j + 1) * mapSize + i;
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+
+				nextTile = maze.getTileType({ j + 1, i + 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j + 1) * mapSize + (i + 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+
+				nextTile = maze.getTileType({ j + 1, i - 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j + 1) * mapSize + (i - 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+			}
+
+			if (j != 0 && currentTile == grass)
+			{
+				tileType nextTile = maze.getTileType({ j - 1, i });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j - 1) * mapSize + i;
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+
+				nextTile = maze.getTileType({ j - 1, i + 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j - 1) * mapSize + (i + 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+
+				nextTile = maze.getTileType({ j - 1, i - 1 });
+				if (nextTile == grass)
+				{
+					float nextCoordinate = (j - 1) * mapSize + (i - 1);
+					Edge tempEdge = { nodeMap.at(nextCoordinate), 0 };
+					currentNode->connections.push_back(tempEdge);
+				}
+			}
+		}
 	}
 
 	// Main game loop
@@ -59,6 +198,12 @@ int main()
 		ClearBackground(BLACK);
 
 		maze.draw();
+
+		drawGraph(nodeMap.at(1), { tileSize, tileSize });
+
+		/*for (Node* node : nodeMap) {
+			drawNode(node, { tileSize, tileSize }, true);
+		}*/
 
 		EndDrawing();
 		//----------------------------------------------------------------------------------

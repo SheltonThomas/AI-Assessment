@@ -23,6 +23,8 @@ public:
 	Vector2 getMapSize() { return m_mapSize; }
 	Vector2 getTileSize() { return m_tileSize; }
 
+	T getTileType(Vector2 coordiantes);
+
 	void draw();
 	void drawTile(Tile<T> tile, Vector2 coordinates);
 
@@ -77,6 +79,13 @@ inline Tile<T> Maze<T>::checkTile(Vector2 coordinates)
 	coordinates = { coordinates.x / m_tileSize.x , coordinates.y / m_tileSize.y };
 	int index = coordinates.y * m_mapSize.x + coordinates.x;
 	return m_tileMap[index];
+}
+
+template<typename T>
+inline T Maze<T>::getTileType(Vector2 coordinates)
+{
+	int index = coordinates.y * m_mapSize.x + coordinates.x;
+	return m_tileMap[index].data;
 }
 
 template<typename T>
