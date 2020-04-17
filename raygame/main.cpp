@@ -183,6 +183,8 @@ int main()
 		}
 	}
 
+	std::vector<Node*> path = pathFinding(nodeMap.at(57), nodeMap.at(163));
+
 	// Main game loop
 	while (!WindowShouldClose())    // Detect window close button or ESC key
 	{
@@ -199,11 +201,15 @@ int main()
 
 		maze.draw();
 
-		drawGraph(nodeMap.at(1), { tileSize, tileSize });
+		//drawGraph(nodeMap.at(76), { tileSize, tileSize });
 
 		/*for (Node* node : nodeMap) {
 			drawNode(node, { tileSize, tileSize }, true);
 		}*/
+
+		for (Node* node : path) {
+			drawNode(node, { tileSize, tileSize }, true);
+		}
 
 		EndDrawing();
 		//----------------------------------------------------------------------------------

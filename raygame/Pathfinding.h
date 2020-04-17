@@ -18,9 +18,10 @@ namespace pathfinding
 		Vector2 position;
 
 		float gScore = 0.0f;
+		//## Add hScore ##//
 		float hScore = 0.0f;
+		//## Add fScore ##//
 		float fScore = 0.0f;
-
 		Node* previous = nullptr;
 
 		std::vector<Edge> connections;
@@ -31,7 +32,7 @@ namespace pathfinding
 		return abs(currentNode->position.x - goal->position.x) + abs(currentNode->position.y - goal->position.y);
 	}
 
-	std::vector<Node*> dijkstrasSearch(Node* startNode, Node* endNode)
+	std::vector<Node*> pathFinding(Node* startNode, Node* endNode)
 	{
 		//Validate the input
 		if (startNode == nullptr || endNode == nullptr) {
@@ -70,42 +71,51 @@ namespace pathfinding
 			}
 
 			//For each Edge e in currentNode's connections
-			for (Edge currentConnection : currentNode->connections) {
+			for (Edge e : currentNode->connections) {
 				//If the target node is in the closedList, ignore it
-				if (std::find(closedList.begin(), closedList.end(), currentConnection.target) != closedList.end()) {
+				if (std::find(closedList.begin(), closedList.end(), e.target) != closedList.end()) {
 					continue;
 				}
 				//Temporarily calculate the target node's G Score
-				float gScore = currentNode->gScore + currentConnection.cost;
-				float hScore = findManhattan(currentConnection.target, endNode);
+				float gScore = currentNode->gScore + e.cost;
+				//## Temporarily calculate the target node's H Score ##//
+				float hScore = findManhattan(e.target, endNode);
+				//## Temporarily calculate the target node's F Score ##//
 				float fScore = gScore + hScore;
-
 				//If the target node is not in the openList, update it
-				if (std::find(openList.begin(), openList.end(), currentConnection.target) == openList.end()) {
+				if (std::find(openList.begin(), openList.end(), e.target) == openList.end()) {
 					//Update the target node's G Score from the temporary value
-					currentConnection.target->gScore = gScore;
-					currentConnection.target->fScore = fScore;
-					currentConnection.target->previous = currentNode;
-
+					e.target->gScore = gScore;
+					//## Update the target node's H Score from the temporary value ##//
+					//## Update the target node's F Score from the temporary value ##//
+					e.target->fScore = fScore;
 					//Set the target node's previous to currentNode
-					currentConnection.target->previous = currentNode;
+					e.target->previous = currentNode;
 					//Find the earliest point we should insert the node to the list to keep it sorted
+					//## Change this to use F Score instead of G Score ##//
 					auto insertionPos = openList.end();
 					for (auto i = openList.begin(); i != openList.end(); i++) {
-						if (currentConnection.target->gScore < (*i)->fScore) {
+						if (e.target->fScore < (*i)->fScore) {
 							insertionPos = i;
 							break;
 						}
 					}
 					//Insert the node at the appropriate position
-					openList.insert(insertionPos, currentConnection.target);
+					openList.insert(insertionPos, e.target);
 				}
 				//Otherwise the target node IS in the open list
-				else if (fScore < currentConnection.target->fScore) {
-					currentConnection.target->gScore = gScore;
-					currentConnection.target->hScore = hScore;
-					currentConnection.target->fScore = fScore;
-					currentConnection.target->previous = currentNode;
+				else {
+					//Compare the new G Score to the old one before updating
+					//## Change this to use F Score instead of G Score ##//
+					if (fScore < e.target->fScore) {
+						//Update the target node's G Score from the temporary value
+						e.target->gScore = gScore;
+						//## Update the target node's H Score from the temporary value ##//
+						//## Update the target node's F Score from the temporary value ##//
+						e.target->fScore = fScore;
+						//Set the target node's previous to currentNode
+						e.target->previous = currentNode;
+					}
 				}
 			}
 		}
